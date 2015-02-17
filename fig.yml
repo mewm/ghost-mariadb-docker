@@ -1,0 +1,33 @@
+data:
+  build: ./data
+  volumes:
+    - /var/lib/mysql
+    - /var/www/ghost/content
+db:
+  build: ./mariadb
+  ports:
+    - "3305:3305"
+  volumes_from:
+    - data
+  environment:
+    - DEFAULT_USER=ghost # A user with this name will be created
+    - DEFAULT_PASS=foobarbaz
+    - PORT=3305
+web:
+  build: ./ghost
+  ports:
+    - "2368:2368"
+  links:
+    - db:database
+  volumes_from:
+    - data
+  environment:
+    - DB_HOST=database
+    - DB_CLIENT=mysql
+    - DB_USER=ghost
+    - DB_PASSWORD=foobarbaz
+    - DB_PORT=3305
+    - DB_DATABASE=ghost
+    - URL=http://localhost:2368/
+    - NODE_ENV=production # production/development
+    - THEME_SOURCE=https://github.com/mewm/ghost-theme # Git repo to fetch theme from
