@@ -28,6 +28,6 @@ web:
     - DB_PASSWORD=foobarbaz
     - DB_PORT=3305
     - DB_DATABASE=ghost
-    - URL=http://localhost:2368/
+    - URL=http://blog.mewm.org
     - NODE_ENV=production # production/development
     - THEME_SOURCE=https://github.com/mewm/ghost-theme # Git repo to fetch theme from
