@@ -10,7 +10,7 @@ RUN apt-get update && \
 
 # Set bind address to 0.0.0.0 and enforce port
 RUN sed -i -r 's/bind-address.*$/bind-address = 0.0.0.0/' /etc/mysql/my.cnf
-RUN sed -i -r 's/port.*$/port = 3306'/ /etc/mysql/my.cnf
+RUN sed -i -r 's/port.*$/port = 3305'/ /etc/mysql/my.cnf
 
 # Add bash scripts for creating a user and run server
 ADD create-mariadb-user.sh /create-mariadb-user.sh

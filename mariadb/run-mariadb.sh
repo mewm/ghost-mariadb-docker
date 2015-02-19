@@ -6,7 +6,7 @@ if find ${VOLUME_HOME} -maxdepth 0 -empty | read v; then
     echo " -> Installing MariaDB"
     mysql_install_db > /dev/null 2>&1
     echo " -> Done!"
-    /create-mariadb-admin-user.sh
+    /create-mariadb-user.sh
 else
     echo "-> Booting on existing volume!"
 fi
