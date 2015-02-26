@@ -5,7 +5,7 @@
 [ghost-config-gist]: https://gist.github.com/mewm/778644a11b0f28670fe4
 [fig-yml-reference]: http://www.fig.sh/yml.html
 [fig-cli-reference]: http://www.fig.sh/cli.html
-[ghost-mariadb-fig-repo]: https://github.com/mewm/ghost-mariadb-fig
+[ghost-mariadb-fig-repo]: https://github.com/mewm/ghost-mariadb-docker
 [docker-doc]: https://docs.docker.com/userguide
 [docker-hub]: https://registry.hub.docker.com
 [docker-performance-paper]: http://stackoverflow.com/questions/21889053/what-is-the-runtime-performance-cost-of-a-docker-container
@@ -320,7 +320,7 @@ It's fairly easy to rewrite these snippets to grab the tar filename from a comma
 ### Nginx virtual host
 <a id="nginxvirtualhost"></a>
 
-If you like me is a sucker for nginx, and you host several sites on your server already (which is probably are occupying port 80), you can use a virtual host to proxy the requests to your ghost app. There is similar script out there for apache as well.
+If you like me is a sucker for nginx, and you host several sites on your server already (which are likely occupying port 80), you can use a virtual host to proxy the requests to your ghost app. There is similar script out there for apache as well.
 
 ```
 server {
