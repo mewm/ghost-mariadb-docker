@@ -24,17 +24,17 @@ Fig provides a clean interface for managing containers, and lets you handle all 
 Fig also has a number of other really nice features, such as scaling, though I haven't tried it yet.
 
 
-# Tools we're gonna use
+## Tools we're gonna use
 * [Fig]
 * [Docker] - you might need [boot2docker] if you're running OSX. [OSXContainerHost] is actually my favorite choice for proxying docker on OSX, [but it has a known issue with the devicemapper when using fig.](https://github.com/SeerUK/OSXContainerHost/issues/2)   
 * Your favorite editor!
 
 
-# Problem
+## Problem
 I want a Ghost blogging platform connected with MariaDB. I also want to be able to grab backups, and update my theme easily. Ohh, and I want that shit dockerized and managed with fig!
 
 
-# Objectives
+## Objectives
 So we have our quite abstract problem. Let's split it into smaller objectives:
 
 * [Create a Dockerfile for a data-only container](#dataonlydocker)
@@ -50,7 +50,7 @@ So we have our quite abstract problem. Let's split it into smaller objectives:
 * [Optional: Setup a virtual host for nginx to proxy requests to our blog](#nginxvirtualhost)
 
 
-## Data-only Dockerfile
+### Data-only Dockerfile
 <a id="dataonlydocker"></a>
 
 ```php
@@ -68,7 +68,7 @@ Initially, I didn't event want to have a Dockerfile for this container (you can 
 The base image we're using here; ```busybox```, is just a really small image, which is perfect for our data-only container. You can find already existing images on [Docker Hub][docker-hub]
 
 
-## MariaDB Dockerfile
+### MariaDB Dockerfile
 <a id="mariadbdocker"></a>
 
 ```dockerfile
@@ -101,7 +101,7 @@ There are more fine and optimized base images for databases, than just ubuntu:tr
 The important thing to notice here, is opening up for connections outside localhost, and adding the two bash scripts we need. The containers will have there "links to other containers" defined in the ```fig.yml``` file. Finally, we're instructing the container to invoke ```run-mariadb.sh``` as the default command upon invocation.
 
 
-### MariaDB start script
+#### MariaDB start script
 <a id="mariadbstartscript"></a>
 
 ```bash
@@ -123,7 +123,7 @@ exec mysqld_safe
 This script is the default command for our database container. When initial boot is detected, we bootstrap the server and invoke our create-user script outlined below, then we start our server.
 
 
-### Create database user script
+#### Create database user script
 <a id="mariadbcreateuserscript"></a>
 
 ```bash
@@ -148,20 +148,23 @@ This script will be invoked from ```run-mariadb.sh``` when initial boot is detec
 then creating the user with credentials which we will define later in our ```fig.yml```.
 
 
-## Ghost Dockerfile
+### Ghost Dockerfile
 <a id="ghostdocker"></a>
 
 ```
-FROM dockerfile/nodejs
+FROM node:0.10-wheezy
 MAINTAINER Dennis Micky Jensen "root@mewm.org"
 
 # Download and install latest version of ghost
 RUN cd /tmp 
 RUN wget https://ghost.org/zip/ghost-latest.zip 
+RUN apt-get update
+RUN apt-get install zip unzip 
 RUN unzip ghost-latest.zip -d /ghost 
 RUN rm -f ghost-latest.zip 
 RUN mkdir -p /var/www
 RUN mv /ghost /var/www 
+RUN npm install sqlite3 --build-from-source
 RUN cd /var/www/ghost && npm install --production 
 
 # Move ghost into the system neighbourhood. Welcome yo!
@@ -175,12 +178,15 @@ ADD run-ghost.sh /run-ghost.sh
 RUN chmod 0500 /run-ghost.sh
 
 CMD /run-ghost.sh
+
+
+
 ```
 When building the image from this Dockerfile, we download and install the latest version of ghost. We also create and configure a user which will run the ghost app.
 You might have noticed, that there is next to none environment variables set. They will be defined in ```fig.yml``` which we will get to later. 
-You can basically decide your self, how wanna split the instructions between fig and the Dockerfile. I just went for a solution I thought was adequate, but frankly, I'm not quite sure about the best practices here though. 
+You can basically decide your self, how wanna split the instructions between fig and the Dockerfile. I just went for a solution I thought was adequate, but frankly, I'm not quite sure about the best practices here though.
 
-### Ghost config file
+#### Ghost config file
 <a id="ghostconfig"></a>
 
 [This gist][ghost-config-gist] provides a quite generic template for ```config.js```, that's more or less completely configurable with environment variables. 
@@ -188,7 +194,7 @@ To be honest, I don't remember where I got this from, so I don't know who to cre
 I have not considered emailing in this setup, but it's only a couple of environment variables you need to add, which you can spoof from the file.
 
 
-### Ghost boot script
+#### Ghost boot script
 <a id="ghostbootscript"></a>
 
 ```
@@ -208,7 +214,7 @@ su ghost -c "npm start"
 Here we are detecting if the theme (also configured in ```fig.yml```) has been checked out from git yet, and if not, we pull the latest changes. This script runs every time you start the container, so if you've pushed changes to your theme, it's just a matter of restarting your container to get the updates.
 Then we ensure ghost ownership to our web folder, and start the express server. This might not be the most secure procedure, but it floats my boat for now :P
 
-## Fig
+### Fig
 <a id="fig"></a>
 
 This is where we define our services for our whole application. Fig will take care of building images and starting containers.
@@ -220,6 +226,7 @@ data:
   volumes:
     - /var/lib/mysql
     - /var/www/ghost/content
+#    - /Users/mewm/www/ghost-theme:/var/www/ghost/content/themes/casper This can be added for theme development. Comment out the theme stuff in run-ghost.sh before rebuilding
 db:
   build: ./mariadb
   ports:
@@ -245,9 +252,10 @@ web:
     - DB_PASSWORD=foobarbaz
     - DB_PORT=3305
     - DB_DATABASE=ghost
-    - URL=http://localhost:2368/
-    - NODE_ENV=production # production/development
+    - NODE_ENV=production
+    - URL=http://blog.mewm.org
     - THEME_SOURCE=https://github.com/mewm/ghost-theme # Git repo to fetch theme from
+
 ```
 As you can see, configuring Docker containers with Fig is really easy. [There is fig counterpart to almost all options that goes with ```docker run```][fig-yml-reference]
 As vaguely mentioned before, you can define your instructions either in ```fig.yml``` or the ```Dockerfile```, and mix it up that way, to whatever fits your use-case best.
@@ -260,6 +268,9 @@ $ fig build
 
 # Start our application. This runs the CMD specified in the Dockerfiles
 $ fig up
+
+# If you've made changes to your theme, you can just restart the web service to update from github
+$ fig restart web
 ```
 An there you have it! Both commands aggregates a fair amount of output from each container, but hopefully you should see everything go pretty smoothly. Fig will stay open if no exit code is detected. You might wanna throw in a ```-d``` to run it "Detached mode".
 
@@ -267,11 +278,12 @@ When you're playing around with builds, it's useful to remove containers you don
 It's worth mentioning that ```up``` doesn't rebuild images automatically, so if you've made changes to a Dockerfile, you will need to ```build``` it again. To get an overview of your containers, ```ps``` will do the job, just as with the docker cli. If your container has a shell (busybox doesn't) and you wanna sneak around inside your container, you can start an interactive shell with ```fig run web /bin/bash``` (currently, I'm experiencing an issue where this command actually just hangs. By waiting 5 seconds and then CTRL+C it actually continues).
 
 A few caveats I've encountered, which is worth mentioning:
+
 * Docker seems to give a shit about your low-volume overly expensive SSD disk, and tends to build up quite a few containers and images occupying a lot of space. Just try do a ```docker ps -a``` (shows all your containers), ```docker images``` (shows all images). They don't even have an easy way of cleaning it up, but luckily there is this little naughty one-line that does the job:  ```docker rm $(docker ps -a -q) && docker rmi $(docker images -q)``` - Warning: all your shit will be lost. If you're on OSX, you can also just destroy your VM box that contains docker.
 * Maybe you've noticed, but the data-only container isn't actually running. That's because even though the container is stopped, the volumes are still active. This took me quite a while to figure out :P
 
 
-## Backup and restore scripts
+### Backup and restore scripts
 <a id="backuprestorescripts"></a>
 
 This is where we take advantage of our mountable volumes on our data-only.container.
@@ -305,7 +317,7 @@ To restore each backup, all you have to do, is extract the tar file instead of c
 It's fairly easy to rewrite these snippets to grab the tar filename from a command line argument, [just take a look at this project on github][ghost-mariadb-fig-repo]
 
 
-## Nginx virtual host
+### Nginx virtual host
 <a id="nginxvirtualhost"></a>
 
 If you like me is a sucker for nginx, and you host several sites on your server already (which is probably are occupying port 80), you can use a virtual host to proxy the requests to your ghost app. There is similar script out there for apache as well.
