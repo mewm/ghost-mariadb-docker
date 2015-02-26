@@ -50,8 +50,8 @@ So we have our quite abstract problem. Let's split it into smaller objectives:
 * [Optional: Setup a virtual host for nginx to proxy requests to our blog](#nginxvirtualhost)
 
 
-### Data-only Dockerfile
 <a id="dataonlydocker"></a>
+### Data-only Dockerfile
 
 ```php
 FROM busybox
@@ -68,8 +68,8 @@ Initially, I didn't event want to have a Dockerfile for this container (you can 
 The base image we're using here; ```busybox```, is just a really small image, which is perfect for our data-only container. You can find already existing images on [Docker Hub][docker-hub]
 
 
-### MariaDB Dockerfile
 <a id="mariadbdocker"></a>
+### MariaDB Dockerfile
 
 ```dockerfile
 FROM ubuntu:trusty
@@ -101,8 +101,8 @@ There are more fine and optimized base images for databases, than just ubuntu:tr
 The important thing to notice here, is opening up for connections outside localhost, and adding the two bash scripts we need. The containers will have there "links to other containers" defined in the ```fig.yml``` file. Finally, we're instructing the container to invoke ```run-mariadb.sh``` as the default command upon invocation.
 
 
-#### MariaDB start script
 <a id="mariadbstartscript"></a>
+#### MariaDB start script
 
 ```bash
 #!/bin/bash
@@ -123,8 +123,8 @@ exec mysqld_safe
 This script is the default command for our database container. When initial boot is detected, we bootstrap the server and invoke our create-user script outlined below, then we start our server.
 
 
-#### Create database user script
 <a id="mariadbcreateuserscript"></a>
+#### Create database user script
 
 ```bash
 #!/bin/bash
@@ -148,8 +148,8 @@ This script will be invoked from ```run-mariadb.sh``` when initial boot is detec
 then creating the user with credentials which we will define later in our ```fig.yml```.
 
 
-### Ghost Dockerfile
 <a id="ghostdocker"></a>
+### Ghost Dockerfile
 
 ```
 FROM node:0.10-wheezy
@@ -186,16 +186,17 @@ When building the image from this Dockerfile, we download and install the latest
 You might have noticed, that there is next to none environment variables set. They will be defined in ```fig.yml``` which we will get to later. 
 You can basically decide your self, how wanna split the instructions between fig and the Dockerfile. I just went for a solution I thought was adequate, but frankly, I'm not quite sure about the best practices here though.
 
-#### Ghost config file
+
 <a id="ghostconfig"></a>
+#### Ghost config file
 
 [This gist][ghost-config-gist] provides a quite generic template for ```config.js```, that's more or less completely configurable with environment variables. 
 To be honest, I don't remember where I got this from, so I don't know who to credit :(
 I have not considered emailing in this setup, but it's only a couple of environment variables you need to add, which you can spoof from the file.
 
 
-#### Ghost boot script
 <a id="ghostbootscript"></a>
+#### Ghost boot script
 
 ```
 #!/bin/bash
@@ -214,8 +215,9 @@ su ghost -c "npm start"
 Here we are detecting if the theme (also configured in ```fig.yml```) has been checked out from git yet, and if not, we pull the latest changes. This script runs every time you start the container, so if you've pushed changes to your theme, it's just a matter of restarting your container to get the updates.
 Then we ensure ghost ownership to our web folder, and start the express server. This might not be the most secure procedure, but it floats my boat for now :P
 
-### Fig
+
 <a id="fig"></a>
+### Fig
 
 This is where we define our services for our whole application. Fig will take care of building images and starting containers.
 Here is how our ```fig.yml``` looks like:
@@ -283,8 +285,8 @@ A few caveats I've encountered, which is worth mentioning:
 * Maybe you've noticed, but the data-only container isn't actually running. That's because even though the container is stopped, the volumes are still active. This took me quite a while to figure out :P
 
 
-### Backup and restore scripts
 <a id="backuprestorescripts"></a>
+### Backup and restore scripts
 
 This is where we take advantage of our mountable volumes on our data-only.container.
 
@@ -317,8 +319,8 @@ To restore each backup, all you have to do, is extract the tar file instead of c
 It's fairly easy to rewrite these snippets to grab the tar filename from a command line argument, [just take a look at this project on github][ghost-mariadb-fig-repo]
 
 
-### Nginx virtual host
 <a id="nginxvirtualhost"></a>
+### Nginx virtual host
 
 If you like me is a sucker for nginx, and you host several sites on your server already (which are likely occupying port 80), you can use a virtual host to proxy the requests to your ghost app. There is similar script out there for apache as well.
 
