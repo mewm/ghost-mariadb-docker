@@ -9,8 +9,12 @@
 [docker-doc]: https://docs.docker.com/userguide
 [docker-hub]: https://registry.hub.docker.com
 [docker-performance-paper]: http://stackoverflow.com/questions/21889053/what-is-the-runtime-performance-cost-of-a-docker-container
+[docker-compose]: https://github.com/docker/compose
+[docker-compose-install]: https://docs.docker.com/compose/install/
 
-_Disclaimer: I'm no docker expert whatsoever, nor do I claim that this is __the way__ to do it, but just my 1337 cents_
+__UPDATE: Since i wrote this post, [docker-compose] has been released by the docker team. This replaces fig completely, which is now deprecated. To make the transition, you just have to rename ```fig.yml``` to ```docker-compose.yml``` and use ```$ docker-compose``` instead of ```$ fig```
+Obviously, you need to [install docker-compose][docker-compose-install] on the host first.
+This now works with OSXContainerHost, if you're using OSX.__
 
 I just recently set this blog ghost blog up, so I decided to write this post along with it. This post elaborates the setup which is currently hosted on Digital Ocean.
 
@@ -23,10 +27,11 @@ Using Fig, we can easily manage our Docker containers and their respective build
 Fig provides a clean interface for managing containers, and lets you handle all your app's services from a single source.
 Fig also has a number of other really nice features, such as scaling, though I haven't tried it yet.
 
+_Disclaimer: I'm no docker expert whatsoever, nor do I claim that this is __the way__ to do it, but just my 1337 cents_
 
 ## Tools we're gonna use
-* [Fig]
-* [Docker] - you might need [boot2docker] if you're running OSX. [OSXContainerHost] is actually my favorite choice for proxying docker on OSX, [but it has a known issue with the devicemapper when using fig.](https://github.com/SeerUK/OSXContainerHost/issues/2)   
+* ~~[Fig]~~ - [docker-compose] has been released, which replaces fig.
+* [Docker] - ~~you might need [boot2docker] if you're running OSX. [OSXContainerHost] is actually my favorite choice for proxying docker on OSX, [but it has a known issue with the devicemapper when using fig.](https://github.com/SeerUK/OSXContainerHost/issues/2)~~ The release of docker-compose has fixed the devicemapper issue, and now works perfectly. 
 * Your favorite editor!
 
 
