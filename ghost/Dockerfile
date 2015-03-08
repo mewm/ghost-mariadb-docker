@@ -21,6 +21,7 @@ WORKDIR /var/www/ghost
 # Add config and script to start the engine
 ADD config.js /var/www/ghost/config.js
 ADD run-ghost.sh /run-ghost.sh
+ADD install_newrelic.sh /install_newrelic.sh
 RUN chmod 0500 /run-ghost.sh
 
 CMD /run-ghost.sh

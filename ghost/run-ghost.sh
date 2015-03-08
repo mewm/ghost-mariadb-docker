@@ -1,4 +1,10 @@
 #!/bin/bash
+NEW_RELIC="${NEW_RELIC:=0}"
+
+if [ ${NEW_RELIC} != "0" ] && [ ${NODE_ENV} = "production" ]; then
+	sh /install_newrelic.sh ${NEW_RELIC}
+fi
+
 _theme_source_destination="${HOME}/content/themes/casper"
 
 if [ -d ${_theme_source_destination} ]; then
