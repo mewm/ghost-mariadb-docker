@@ -1,7 +1,7 @@
 #!/bin/bash
 NEW_RELIC="${NEW_RELIC:=0}"
 
-if [ ${NEW_RELIC} != "0" ] && [ ${NODE_ENV} = "production" ]; then
+if [ "${NEW_RELIC}" != "0" ] && [ "${NODE_ENV}" = "production" ]; then
 	sh /install_newrelic.sh ${NEW_RELIC}
 fi
 
