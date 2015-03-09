@@ -1,6 +1,6 @@
 server {
   listen 0.0.0.0:80;
-  server_name http://blog.mewm.org; #replace this line with your domain
+  server_name blog.mewm.org; #replace this line with your domain
   access_log /var/log/nginx/blog.mewm.org.log; #replace this with any log name
 
   location / {
