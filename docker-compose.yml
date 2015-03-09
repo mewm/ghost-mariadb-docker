@@ -3,6 +3,7 @@ data:
   volumes:
     - /var/lib/mysql
     - /var/www/ghost/content
+    - /var/log/nginx
 #    - /Users/mewm/www/ghost-theme:/var/www/ghost/content/themes/casper This can be added for theme development. Comment out the theme stuff in run-ghost.sh before rebuilding
 db:
   build: ./mariadb
@@ -29,7 +30,26 @@ web:
     - DB_PASSWORD=foobarbaz
     - DB_PORT=3305
     - DB_DATABASE=ghost
-    - NODE_ENV=production
+    - NODE_ENV=development
     - URL=http://blog.mewm.org
     - THEME_SOURCE=https://github.com/mewm/ghost-theme # Git repo to fetch theme from
     - NEW_RELIC=<api key here>
+webserver1:
+  image: dockerfile/nginx
+  links:
+    - web:ghost1
+  volumes:
+    - nginx/:/etc/nginx/sites-enabled
+  volumes_from:
+    - data
+  ports:
+    - "8081:8081"
+varnish:
+  build: ./varnish
+  links:
+    - webserver1:node1
+  command: sh /start.sh
+  volumes:
+    - varnish/:/etc/varnish
+  ports:
+    - "8888:8888"
