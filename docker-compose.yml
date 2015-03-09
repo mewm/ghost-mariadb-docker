@@ -30,7 +30,7 @@ web:
     - DB_PASSWORD=foobarbaz
     - DB_PORT=3305
     - DB_DATABASE=ghost
-    - NODE_ENV=development
+    - NODE_ENV=production
     - URL=http://blog.mewm.org
     - THEME_SOURCE=https://github.com/mewm/ghost-theme # Git repo to fetch theme from
     - NEW_RELIC=<api key here>
@@ -52,4 +52,4 @@ varnish:
   volumes:
     - varnish/:/etc/varnish
   ports:
-    - "8888:8888"
+    - "80:8888"
