@@ -32,4 +32,9 @@ web:
     - NODE_ENV=production
     - URL=http://blog.mewm.org
     - THEME_SOURCE=https://github.com/mewm/ghost-theme # Git repo to fetch theme from
-    - NEW_RELIC=<api key here>
+    - NEW_RELIC_LICENSE_KEY=<api key here>
+newrelic_servermon:
+  image: uzyexe/newrelic
+  hostname: charmander.mewm.org
+  environment:
+    - NEW_RELIC_LICENSE_KEY=<api key here>
