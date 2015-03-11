@@ -33,7 +33,7 @@ web:
     - URL=http://blog.mewm.org
     - THEME_SOURCE=https://github.com/mewm/ghost-theme # Git repo to fetch theme from
     - NEW_RELIC_LICENSE_KEY=<api key here>
-newrelic_servermon:
+newrelicservermon:
   image: uzyexe/newrelic
   hostname: charmander.mewm.org
   environment:
